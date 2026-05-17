@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>HELIX AI — by Pritam BK</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#00d4ff"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="HELIX"/>
+<meta name="description" content="Advanced AI Voice Assistant by Pritam BK from Nepal"/>
+<meta name="author" content="Pritam BK, Nepal"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',sans-serif;background:#020818;color:#c9d6f0;min-height:100vh;overflow-x:hidden;}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:50px 50px;z-index:0;pointer-events:none;animation:gridMove 20s linear infinite;}
+@keyframes gridMove{from{background-position:0 0;}to{background-position:50px 50px;}}
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,#00d4ff,transparent);z-index:1;pointer-events:none;animation:scanLine 5s linear infinite;opacity:0.4;}
+@keyframes scanLine{from{top:-10px;}to{top:100vh;}}
+#app{position:relative;z-index:2;max-width:620px;margin:0 auto;padding:24px 18px 40px;}
+.header{text-align:center;margin-bottom:20px;}
+h1{font-size:36px;font-weight:900;letter-spacing:10px;color:#00d4ff;text-shadow:0 0 20px rgba(0,212,255,0.8),0 0 40px rgba(0,212,255,0.4);animation:titlePulse 3s ease-in-out infinite;}
+@keyframes titlePulse{0%,100%{text-shadow:0 0 20px rgba(0,212,255,0.8),0 0 40px rgba(0,212,255,0.4);}50%{text-shadow:0 0 35px #00d4ff,0 0 70px rgba(0,212,255,0.7);}}
+.subtitle{font-size:11px;color:#2a6a8a;letter-spacing:2px;text-transform:uppercase;margin-top:5px;}
+.vtag{display:inline-block;margin-top:7px;padding:3px 12px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:20px;font-size:10px;color:#00d4ff;letter-spacing:2px;}
+.box{position:relative;border:1px solid rgba(0,212,255,0.15);border-radius:14px;background:rgba(5,15,35,0.9);padding:16px;margin-bottom:14px;}
+.box::before,.box::after{content:'';position:absolute;width:13px;height:13px;border-color:#00d4ff;border-style:solid;opacity:0.5;}
+.box::before{top:-1px;left:-1px;border-width:2px 0 0 2px;border-radius:4px 0 0 0;}
+.box::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-radius:0 0 4px 0;}
+.slabel{font-size:10px;color:#00d4ff;text-transform:uppercase;letter-spacing:2px;display:block;margin-bottom:10px;font-weight:700;}
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.kfield{display:flex;flex-direction:column;gap:5px;}
+.kfield label{font-size:10px;color:#4a8aaa;letter-spacing:1px;text-transform:uppercase;}
+.kfield input{background:rgba(0,10,25,0.9);border:1px solid rgba(0,212,255,0.2);border-radius:8px;color:#c9d6f0;font-size:12px;padding:9px 11px;font-family:monospace;outline:none;width:100%;transition:border-color 0.3s;}
+.kfield input:focus{border-color:#00d4ff;}
+.khint{font-size:10px;color:#1a5a7a;margin-top:8px;}
+.khint a{color:#00d4ff;}
+.vbadge{margin-top:10px;padding:7px 12px;background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.2);border-radius:8px;font-size:11px;color:#00ff88;}
+.vtoggle-row{display:flex;gap:8px;margin-top:10px;}
+.vtoggle{flex:1;padding:7px;font-size:11px;border-radius:8px;cursor:pointer;border:1px solid rgba(0,212,255,0.2);background:rgba(0,10,25,0.6);color:#4a8aaa;transition:all 0.3s;text-align:center;}
+.vtoggle.on{border-color:#00d4ff;color:#00d4ff;background:rgba(0,212,255,0.1);}
+.stats{display:flex;gap:8px;margin-bottom:14px;}
+.stat{flex:1;text-align:center;padding:9px 6px;background:rgba(5,15,35,0.9);border:1px solid rgba(0,212,255,0.12);border-radius:9px;overflow:hidden;position:relative;}
+.stat::after{content:'';position:absolute;bottom:0;left:0;height:2px;width:100%;background:linear-gradient(90deg,transparent,#00d4ff,transparent);animation:ss 3s ease-in-out infinite;}
+@keyframes ss{0%,100%{opacity:0.3;}50%{opacity:1;}}
+.sv{font-size:14px;font-weight:700;color:#00d4ff;}
+.sl{font-size:9px;color:#2a6a8a;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+#orb-wrap{display:flex;justify-content:center;align-items:center;margin:8px 0;position:relative;}
+.rings{position:absolute;width:200px;height:200px;pointer-events:none;}
+.ring{position:absolute;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);}
+.r1{width:162px;height:162px;border:1px solid rgba(0,212,255,0.18);animation:rr 8s linear infinite;}
+.r2{width:192px;height:192px;border:1px solid rgba(0,212,255,0.09);animation:rr 13s linear infinite reverse;}
+@keyframes rr{from{transform:translate(-50%,-50%) rotate(0);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+.r1::before,.r2::before{content:'';position:absolute;width:7px;height:7px;background:#00d4ff;border-radius:50%;top:50%;left:-3.5px;margin-top:-3.5px;box-shadow:0 0 8px #00d4ff;}
+#orb{width:130px;height:130px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#0d2a45,#020818);border:2px solid rgba(0,212,255,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.4s;box-shadow:0 0 30px rgba(0,212,255,0.12);position:relative;z-index:2;}
+#orb:hover{transform:scale(1.04);box-shadow:0 0 50px rgba(0,212,255,0.28);}
+#orb.listening{border-color:#00ff88;box-shadow:0 0 40px rgba(0,255,136,0.5),0 0 80px rgba(0,255,136,0.18);animation:op 1s ease-in-out infinite;}
+#orb.speaking{border-color:#00d4ff;box-shadow:0 0 45px rgba(0,212,255,0.6),0 0 80px rgba(0,212,255,0.25);animation:op 0.7s ease-in-out infinite;}
+#orb.thinking{border-color:#a855f7;box-shadow:0 0 40px rgba(168,85,247,0.5);animation:op 1.5s ease-in-out infinite;}
+#orb.searching{border-color:#f59e0b;box-shadow:0 0 40px rgba(245,158,11,0.45);animation:op 0.9s ease-in-out infinite;}
+@keyframes op{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+#eye-svg{width:68px;height:68px;animation:eblink 4s ease-in-out infinite;}
+@keyframes eblink{0%,88%,100%{transform:scaleY(1);}93%{transform:scaleY(0.08);}}
+.ew{fill:#0a1a2e;stroke:#00d4ff;stroke-width:2;}
+.ei{fill:#00d4ff;transition:fill 0.4s;}
+.ep{fill:#020818;}
+.es{fill:rgba(255,255,255,0.65);}
+#orb.listening .ei{fill:#00ff88;}
+#orb.speaking .ei{fill:#4af3ff;}
+#orb.thinking .ei{fill:#a855f7;}
+#orb.searching .ei{fill:#f59e0b;}
+#wave{display:flex;align-items:center;justify-content:center;gap:3px;height:28px;margin:5px 0;}
+.wb{width:3px;background:#00d4ff;border-radius:2px;height:4px;opacity:0.6;transition:height 0.1s;}
+#status{text-align:center;font-size:11px;color:#2a6a8a;margin-bottom:12px;min-height:18px;letter-spacing:1px;text-transform:uppercase;}
+#status.L{color:#00ff88;text-shadow:0 0 10px rgba(0,255,136,0.5);}
+#status.S{color:#00d4ff;text-shadow:0 0 10px rgba(0,212,255,0.5);}
+#status.T{color:#a855f7;text-shadow:0 0 10px rgba(168,85,247,0.5);}
+#status.X{color:#f59e0b;text-shadow:0 0 10px rgba(245,158,11,0.5);}
+#status.E{color:#ef5350;}
+#log{min-height:160px;max-height:270px;overflow-y:auto;font-size:14px;line-height:1.8;scrollbar-width:thin;scrollbar-color:#1e3a5f transparent;margin-bottom:12px;}
+#log::-webkit-scrollbar{width:4px;}
+#log::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:2px;}
+.msg{margin-bottom:14px;animation:mi 0.4s ease;}
+@keyframes mi{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.mh{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.md{width:6px;height:6px;border-radius:50%;}
+.md.u{background:#00ff88;box-shadow:0 0 6px #00ff88;}
+.md.h{background:#00d4ff;box-shadow:0 0 6px #00d4ff;}
+.md.s{background:#f59e0b;box-shadow:0 0 6px #f59e0b;}
+.ml{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+.ml.u{color:#00ff88;}
+.ml.h{color:#00d4ff;}
+.ml.s{color:#f59e0b;}
+.mt{font-size:9px;color:#2a4a6a;margin-left:auto;}
+.mb{color:#c9d6f0;padding:10px 14px;border-radius:10px;border-left:2px solid;white-space:pre-wrap;font-size:14px;line-height:1.7;}
+.mb.u{background:rgba(0,255,136,0.05);border-color:#00ff88;border-radius:4px 10px 10px 10px;}
+.mb.h{background:rgba(0,212,255,0.05);border-color:#00d4ff;border-radius:10px 4px 10px 10px;}
+.mb.s{background:rgba(245,158,11,0.05);border-color:#f59e0b;border-radius:10px 4px 10px 10px;font-size:13px;}
+.sr{margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(245,158,11,0.15);}
+.sr:last-child{border-bottom:none;margin-bottom:0;}
+.st{color:#f59e0b;font-weight:600;font-size:13px;}
+.ss{color:#8aaccc;font-size:12px;margin-top:2px;}
+.ph{color:#1a3a5a;font-size:13px;text-align:center;padding:30px 0;letter-spacing:1px;}
+#typing{display:none;align-items:center;gap:6px;padding:10px 14px;margin-bottom:12px;}
+#typing.show{display:flex;}
+.td{width:7px;height:7px;border-radius:50%;background:#00d4ff;animation:tb 1.2s ease-in-out infinite;box-shadow:0 0 6px #00d4ff;}
+.td:nth-child(2){animation-delay:0.2s;}.td:nth-child(3){animation-delay:0.4s;}
+@keyframes tb{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-8px);}}
+.tlbl{font-size:11px;color:#2a6a8a;letter-spacing:1px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.chip{padding:5px 10px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.18);border-radius:20px;font-size:11px;color:#4a8aaa;cursor:pointer;transition:all 0.2s;}
+.chip:hover{background:rgba(0,212,255,0.15);color:#00d4ff;border-color:rgba(0,212,255,0.4);}
+#controls{display:flex;gap:10px;margin-bottom:10px;}
+#btnMic{flex:1;padding:13px;font-size:13px;font-weight:700;border-radius:11px;cursor:pointer;border:1px solid rgba(0,212,255,0.4);background:rgba(0,30,60,0.85);color:#00d4ff;transition:all 0.3s;letter-spacing:1px;text-transform:uppercase;}
+#btnMic:hover{box-shadow:0 0 20px rgba(0,212,255,0.3);}
+#btnMic.ON{background:rgba(0,80,0,0.6);color:#00ff88;border-color:#00ff88;box-shadow:0 0 20px rgba(0,255,136,0.3);}
+#btnClear{padding:13px 16px;font-size:12px;border-radius:11px;cursor:pointer;background:rgba(5,15,35,0.9);color:#2a6a8a;border:1px solid rgba(0,212,255,0.12);transition:all 0.3s;text-transform:uppercase;}
+#btnClear:hover{color:#c9d6f0;}
+#typeRow{display:flex;gap:10px;}
+#typeIn{flex:1;padding:12px 15px;font-size:14px;background:rgba(5,15,35,0.9);border:1px solid rgba(0,212,255,0.2);border-radius:11px;color:#c9d6f0;outline:none;font-family:'Segoe UI',sans-serif;transition:border-color 0.3s;}
+#typeIn:focus{border-color:#00d4ff;}
+#typeIn::placeholder{color:#2a4a6a;}
+#btnSend{padding:12px 18px;font-size:13px;border-radius:11px;cursor:pointer;background:rgba(0,212,255,0.1);color:#00d4ff;border:1px solid rgba(0,212,255,0.4);font-weight:700;transition:all 0.3s;text-transform:uppercase;}
+#btnSend:hover{background:rgba(0,212,255,0.2);box-shadow:0 0 20px rgba(0,212,255,0.3);}
+.bhud{display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid rgba(0,212,255,0.08);font-size:10px;color:#1a4a6a;letter-spacing:1px;}
+.bdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#00ff88;box-shadow:0 0 6px #00ff88;animation:bd 2s ease-in-out infinite;margin-right:5px;}
+@keyframes bd{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.api-btn{display:block;width:100%;margin-top:12px;padding:12px;text-align:center;background:linear-gradient(135deg,rgba(0,212,255,0.12),rgba(0,255,136,0.08));border:1px solid rgba(0,212,255,0.35);border-radius:11px;color:#00d4ff;font-size:13px;font-weight:700;letter-spacing:1px;text-decoration:none;cursor:pointer;transition:all 0.3s;text-transform:uppercase;}
+.api-btn:hover{background:linear-gradient(135deg,rgba(0,212,255,0.22),rgba(0,255,136,0.14));box-shadow:0 0 20px rgba(0,212,255,0.3);}
+.producer-card{margin-top:14px;padding:14px 16px;background:rgba(5,15,35,0.9);border:1px solid rgba(0,212,255,0.12);border-radius:12px;display:flex;align-items:center;justify-content:space-between;}
+.producer-info{display:flex;flex-direction:column;gap:3px;}
+.producer-name{font-size:13px;font-weight:700;color:#00d4ff;letter-spacing:1px;}
+.producer-sub{font-size:10px;color:#2a6a8a;letter-spacing:1px;text-transform:uppercase;}
+.producer-flag{font-size:28px;}
+.install-btn{display:block;width:100%;margin-top:10px;padding:11px;text-align:center;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.25);border-radius:11px;color:#00ff88;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.3s;text-transform:uppercase;}
+.install-btn:hover{background:rgba(0,255,136,0.16);box-shadow:0 0 15px rgba(0,255,136,0.2);}
+#installBtn{display:none;}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div id="app">
+
+<div class="header">
+  <h1>H.E.L.I.X</h1>
+  <p class="subtitle">Highly Evolving Linguistic Intelligence eXperience</p>
+  <span class="vtag">VERSION 3.0 · NEPAL · PRITAM</span>
+</div>
+
+<div class="box">
+  <span class="slabel">⬡ API Keys</span>
+  <div class="kgrid">
+    <div class="kfield">
+      <label>Groq API Key *</label>
+      <input type="password" id="groqKey" placeholder="gsk_..."/>
+    </div>
+    <div class="kfield">
+      <label>ElevenLabs Key (optional)</label>
+      <input type="password" id="elKey" placeholder="sk_..."/>
+    </div>
+  </div>
+  <div class="kgrid" style="margin-top:10px;">
+    <div class="kfield" style="grid-column:span 2;">
+      <label>ElevenLabs Voice ID (optional)</label>
+      <input type="text" id="elVoice" placeholder="paste voice id..."/>
+    </div>
+  </div>
+  <div class="vbadge">🔍 Web Search: DuckDuckGo + Weather: wttr.in + YouTube — सबै नि:शुल्क, कुनै key चाहिँदैन!</div>
+  <div class="vtoggle-row">
+    <div class="vtoggle on" id="tBrowser" onclick="setVM('browser')">🔊 Browser Voice</div>
+    <div class="vtoggle" id="tEleven" onclick="setVM('elevenlabs')">🎙️ ElevenLabs Voice</div>
+  </div>
+  <div class="khint">Groq: <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> · ElevenLabs: <a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a> (optional)</div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="sv" id="sMsg">0</div><div class="sl">Messages</div></div>
+  <div class="stat"><div class="sv" id="sSrch">0</div><div class="sl">Searches</div></div>
+  <div class="stat"><div class="sv" id="sStat">Ready</div><div class="sl">Status</div></div>
+  <div class="stat"><div class="sv" id="sVoice">Browser</div><div class="sl">Voice</div></div>
+</div>
+
+<div id="orb-wrap">
+  <div class="rings"><div class="ring r1"></div><div class="ring r2"></div></div>
+  <div id="orb">
+    <svg id="eye-svg" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+      <path class="ew" d="M5,35 Q50,2 95,35 Q50,68 5,35 Z"/>
+      <circle class="ei" cx="50" cy="35" r="17"/>
+      <circle class="ep" cx="50" cy="35" r="9"/>
+      <circle class="es" cx="57" cy="28" r="4"/>
+      <circle class="es" cx="44" cy="41" r="2" opacity="0.4"/>
+    </svg>
+  </div>
+</div>
+<div id="wave"></div>
+<div id="status">Groq key राख्नुस् र 👁 थिच्नुस्</div>
+
+<div class="chips">
+  <span class="chip" onclick="qc('पोखराको मौसम कस्तो छ?')">🌤️ मौसम</span>
+  <span class="chip" onclick="qc('YouTube मा Nepali music खोज')">▶️ YouTube</span>
+  <span class="chip" onclick="qc('नेपालको प्रधानमन्त्री को हुन्?')">🇳🇵 PM को?</span>
+  <span class="chip" onclick="qc('HELIX खोज — Nepal news today')">📰 खबर</span>
+  <span class="chip" onclick="qc('तिमी को हौ HELIX?')">🤖 HELIX</span>
+</div>
+
+<div class="box">
+  <div id="log"><p class="ph">⬡ &nbsp; HELIX सक्रिय छ — बोल्नुस् वा लेख्नुस् &nbsp; ⬡</p></div>
+  <div id="typing"><div class="td"></div><div class="td"></div><div class="td"></div><span class="tlbl" id="tlbl">HELIX सोच्दैछ...</span></div>
+</div>
+
+<div id="controls">
+  <button id="btnMic">👁 बोल्न थिच्नुस्</button>
+  <button id="btnClear">मेट्नुस्</button>
+</div>
+<div id="typeRow">
+  <input type="text" id="typeIn" placeholder="यहाँ लेख्नुस् — 'YouTube मा ...' वा 'मौसम ...' वा जे पनि सोध्नुस्"/>
+  <button id="btnSend">पठाउ</button>
+</div>
+<div class="bhud">
+  <span><span class="bdot"></span>HELIX ONLINE</span>
+  <span id="clk"></span>
+  <span>v3.0</span>
+</div>
+
+<a class="api-btn" href="https://console.groq.com/keys" target="_blank">
+  🔑 Click Here to Get FREE Groq API Key
+</a>
+
+<div class="producer-card">
+  <div class="producer-info">
+    <span class="producer-name">Pritam BK</span>
+    <span class="producer-sub">Developer · Nepal</span>
+    <span class="producer-sub" style="color:#1a4a6a;margin-top:2px;">HELIX AI Assistant v3.0</span>
+  </div>
+  <span class="producer-flag">🇳🇵</span>
+</div>
+
+<button class="install-btn" id="installBtn">📲 Install HELIX App</button>
+
+</div>
+
+<script>
+/* PARTICLES */
+const cv=document.getElementById('bg-canvas'),cx2=cv.getContext('2d');
+let W,H;const pts=[];
+function rsz(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+rsz();window.addEventListener('resize',rsz);
+for(let i=0;i<55;i++)pts.push({x:Math.random()*2000,y:Math.random()*1200,vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,sz:Math.random()*1.5+0.5,a:Math.random()*0.5+0.1,c:Math.random()>0.7?'0,255,136':'0,212,255'});
+function drawBg(){
+  cx2.clearRect(0,0,W,H);
+  pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;cx2.beginPath();cx2.arc(p.x,p.y,p.sz,0,Math.PI*2);cx2.fillStyle='rgba('+p.c+','+p.a+')';cx2.fill();});
+  pts.forEach((p,i)=>{for(let j=i+1;j<pts.length;j++){const dx=p.x-pts[j].x,dy=p.y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<110){cx2.beginPath();cx2.moveTo(p.x,p.y);cx2.lineTo(pts[j].x,pts[j].y);cx2.strokeStyle='rgba(0,212,255,'+(0.07*(1-d/110))+')';cx2.lineWidth=0.5;cx2.stroke();}}});
+  requestAnimationFrame(drawBg);
+}drawBg();
+
+/* WAVE */
+const waveEl=document.getElementById('wave');
+for(let i=0;i<28;i++){const b=document.createElement('div');b.className='wb';waveEl.appendChild(b);}
+const wbs=waveEl.querySelectorAll('.wb');
+let waveOn=false;
+function wave(on){
+  waveOn=on;
+  if(!on){wbs.forEach(b=>{b.style.height='4px';b.style.opacity='0.6';});return;}
+  function s(){if(!waveOn)return;wbs.forEach(b=>{b.style.height=(Math.random()*22+4)+'px';b.style.opacity=0.4+Math.random()*0.6;});setTimeout(s,80);}s();
+}
+
+/* CLOCK */
+function tick(){document.getElementById('clk').textContent=new Date().toLocaleTimeString('ne-NP',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+setInterval(tick,1000);tick();
+
+/* SOUND */
+let actx;
+function getACtx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();return actx;}
+function tone(f,d,t,v){t=t||'sine';v=v||0.12;try{const a=getACtx(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,a.currentTime);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+d);o.start();o.stop(a.currentTime+d);}catch(e){}}
+function sfxOn(){tone(880,0.08);setTimeout(()=>tone(1100,0.1),90);}
+function sfxListen(){tone(660,0.15);}
+function sfxSend(){tone(440,0.1,'triangle');setTimeout(()=>tone(550,0.12),80);}
+function sfxGet(){tone(330,0.08);setTimeout(()=>tone(440,0.08),100);setTimeout(()=>tone(550,0.15),200);}
+function sfxSearch(){tone(500,0.1);setTimeout(()=>tone(700,0.1),120);setTimeout(()=>tone(900,0.12),240);}
+function sfxErr(){tone(200,0.3,'sawtooth',0.1);}
+
+/* DOM */
+const orb=document.getElementById('orb');
+const statEl=document.getElementById('status');
+const logEl=document.getElementById('log');
+const typingEl=document.getElementById('typing');
+const tlbl=document.getElementById('tlbl');
+const btnMic=document.getElementById('btnMic');
+const btnClear=document.getElementById('btnClear');
+const typeIn=document.getElementById('typeIn');
+const btnSend=document.getElementById('btnSend');
+const sMsg=document.getElementById('sMsg');
+const sSrch=document.getElementById('sSrch');
+const sStat=document.getElementById('sStat');
+const sVoice=document.getElementById('sVoice');
+
+/* STATE */
+let hist=[],firstMsg=true,msgN=0,srchN=0;
+let contMode=false,isSpeaking=false,recInited=false,recognition=null;
+let voiceMode='browser';
+let curAudio=null;
+const synth=window.speechSynthesis;
+const SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
+
+function setVM(m){
+  voiceMode=m;
+  document.getElementById('tBrowser').className='vtoggle'+(m==='browser'?' on':'');
+  document.getElementById('tEleven').className='vtoggle'+(m==='elevenlabs'?' on':'');
+  sVoice.textContent=m==='elevenlabs'?'ElevenLabs':'Browser';
+}
+function setStat(msg,cls){statEl.textContent=msg;statEl.className=cls||'';}
+function showTyping(on,lbl){typingEl.className=on?'show':'';if(lbl)tlbl.textContent=lbl;}
+function getT(){return new Date().toLocaleTimeString('ne-NP',{hour:'2-digit',minute:'2-digit'});}
+
+function addMsg(role,html,type){
+  if(firstMsg){logEl.innerHTML='';firstMsg=false;}
+  if(type!=='s')msgN++;else srchN++;
+  sMsg.textContent=msgN;sSrch.textContent=srchN;
+  const isU=(type==='u');const isS=(type==='s');
+  const dc=isS?'s':isU?'u':'h';
+  const div=document.createElement('div');div.className='msg';
+  div.innerHTML='<div class="mh"><div class="md '+dc+'"></div><span class="ml '+dc+'">'+role+'</span><span class="mt">'+getT()+'</span></div><div class="mb '+dc+'">'+html+'</div>';
+  logEl.appendChild(div);
+  logEl.scrollTop=logEl.scrollHeight;
+}
+
+function qc(t){typeIn.value=t;send();}
+
+/* SPEAK */
+function pauseMic(){if(recognition&&contMode)try{recognition.abort();}catch(e){}}
+function resumeMic(){
+  if(!contMode)return;
+  setTimeout(function(){
+    try{recognition.start();}catch(e){}
+    orb.className='listening';
+    setStat('सुन्दैछु... बोल्नुस्!','L');
+    sStat.textContent='Listening';
+    wave(true);
+  },900);
+}
+
+function speakBrowser(text){
+  if(!synth)return;
+  synth.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.rate=0.93;u.pitch=0.82;u.volume=1;
+  const vs=synth.getVoices();
+  const pv=vs.find(function(v){return v.name.toLowerCase().indexOf('google')>-1&&v.lang.indexOf('en')===0;})||vs.find(function(v){return v.lang.indexOf('en')===0;});
+  if(pv)u.voice=pv;
+  orb.className='speaking';setStat('HELIX बोल्दैछ...','S');sStat.textContent='Speaking';wave(true);
+  u.onend=function(){
+    isSpeaking=false;orb.className='';wave(false);
+    if(contMode)resumeMic();
+    else{setStat('👁 थिच्नुस् — HELIX तयार छ');sStat.textContent='Ready';}
+  };
+  synth.speak(u);
+}
+
+async function speakEL(text){
+  const k=document.getElementById('elKey').value.trim();
+  const vid=document.getElementById('elVoice').value.trim();
+  if(!k||!vid){speakBrowser(text);return;}
+  orb.className='speaking';setStat('HELIX बोल्दैछ... (ElevenLabs)','S');sStat.textContent='Speaking';wave(true);
+  try{
+    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+vid,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','xi-api-key':k},
+      body:JSON.stringify({text:text,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.8}})
+    });
+    if(!r.ok)throw new Error('EL error');
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    if(curAudio)curAudio.pause();
+    curAudio=new Audio(url);
+    curAudio.play();
+    curAudio.onended=function(){
+      isSpeaking=false;orb.className='';wave(false);
+      if(contMode)resumeMic();
+      else{setStat('👁 थिच्नुस् — HELIX तयार छ');sStat.textContent='Ready';}
+    };
+  }catch(e){speakBrowser(text);}
+}
+
+function speak(text){
+  isSpeaking=true;
+  pauseMic();
+  if(voiceMode==='elevenlabs')speakEL(text);
+  else speakBrowser(text);
+}
+
+/* SEARCH ENGINES */
+async function getWeather(city){
+  sfxSearch();
+  orb.className='searching';setStat('मौसम खोज्दैछु...','X');showTyping(true,'मौसम जाँच्दैछु...');
+  try{
+    const r=await fetch('https://wttr.in/'+encodeURIComponent(city||'Pokhara')+'?format=j1');
+    if(!r.ok)throw new Error('w');
+    const d=await r.json();
+    const c=d.current_condition[0];
+    const an=d.nearest_area&&d.nearest_area[0]&&d.nearest_area[0].areaName?d.nearest_area[0].areaName[0].value:city;
+    showTyping(false);
+    return [{title:an+' को मौसम',description:'🌡️ '+c.temp_C+'°C | महसुस: '+c.FeelsLikeC+'°C | '+c.weatherDesc[0].value+' | 💧 आर्द्रता: '+c.humidity+'% | 💨 हावा: '+c.windspeedKmph+' km/h',url:''}];
+  }catch(e){showTyping(false);return null;}
+}
+
+function doYouTube(q){
+  sfxSearch();
+  const url='https://www.youtube.com/results?search_query='+encodeURIComponent(q);
+  window.open(url,'_blank');
+  return [{title:'YouTube: '+q,description:'नयाँ tab मा YouTube खुलेको छ! "'+q+'" को लागि',url:url}];
+}
+
+async function duckSearch(q){
+  sfxSearch();
+  orb.className='searching';setStat('इन्टरनेट खोज्दैछु...','X');showTyping(true,'DuckDuckGo मा खोज्दैछु...');
+  try{
+    const ddg='https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1';
+    const proxy='https://corsproxy.io/?'+encodeURIComponent(ddg);
+    const ctrl=new XMLHttpRequest();
+    return await new Promise(function(resolve){
+      ctrl.open('GET',proxy);
+      ctrl.timeout=8000;
+      ctrl.onload=function(){
+        try{
+          const d=JSON.parse(ctrl.responseText);
+          const res=[];
+          if(d.AbstractText)res.push({title:d.Heading||q,description:d.AbstractText,url:d.AbstractURL||''});
+          if(d.RelatedTopics){d.RelatedTopics.slice(0,3).forEach(function(t){if(t.Text&&t.FirstURL)res.push({title:t.Text.substring(0,60),description:t.Text,url:t.FirstURL});});}
+          resolve(res.length>0?res:null);
+        }catch(e){resolve(null);}
+      };
+      ctrl.onerror=ctrl.ontimeout=function(){resolve(null);};
+      ctrl.send();
+    });
+  }catch(e){return null;}finally{showTyping(false);}
+}
+
+function detectIntent(text){
+  const t=text.toLowerCase();
+  if(t.indexOf('youtube')>-1||t.indexOf('video खोज')>-1||t.indexOf('भिडियो खोज')>-1){
+    const q=text.replace(/helix\s*(खोज|search|find)?/gi,'').replace(/youtube\s*(मा|search|खोज|ma)?/gi,'').trim();
+    return {type:'yt',query:q||text};
+  }
+  if(t.indexOf('मौसम')>-1||t.indexOf('weather')>-1||t.indexOf('temperature')>-1||t.indexOf('तापक्रम')>-1){
+    let city='Pokhara';
+    var cities=['काठमाडौं','kathmandu','pokhara','पोखरा','biratnagar','birgunj','dharan','butwal','chitwan','lalitpur','bhaktapur','lumbini','hetauda'];
+    for(var i=0;i<cities.length;i++){if(t.indexOf(cities[i].toLowerCase())>-1){city=cities[i];break;}}
+    return {type:'wx',query:city};
+  }
+  var triggers=['helix खोज','helix search','helix find','helix google','खोज गर','search for','इन्टरनेटमा खोज'];
+  for(var i=0;i<triggers.length;i++){
+    if(t.indexOf(triggers[i])>-1){
+      var q=text.replace(new RegExp(triggers[i],'gi'),'').replace(/^[\s\-—:]+/,'').trim();
+      return {type:'web',query:q||text};
+    }
+  }
+  var current=['प्रधानमन्त्री','prime minister','mayor','मेयर','राष्ट्रपति','president','निर्वाचन','नेपाल खबर','आजको खबर','ताजा खबर','petrol','पेट्रोल','dollar','earthquake','भूकम्प','flood','बाढी','budget','बजेट','२०८२','२०८३','2025','2026'];
+  var hasNepal=t.indexOf('nepal')>-1||t.indexOf('नेपाल')>-1;
+  var hasCurrent=false;
+  for(var i=0;i<current.length;i++){if(t.indexOf(current[i])>-1){hasCurrent=true;break;}}
+  if(hasNepal||hasCurrent)return {type:'web',query:text};
+  return null;
+}
+
+/* MAIN */
+async function askHELIX(userText){
+  const key=document.getElementById('groqKey').value.trim();
+  if(!key){setStat('Groq API key राख्नुस्!','E');sfxErr();return;}
+
+  if(contMode&&recognition)try{recognition.abort();}catch(e){}
+
+  addMsg('तपाईं',userText,'u');
+  hist.push({role:'user',content:userText});
+  if(hist.length>16)hist=hist.slice(-8);
+
+  const intent=detectIntent(userText);
+  let sctx='';
+
+  if(intent){
+    let results=null;
+    if(intent.type==='yt'){
+      results=doYouTube(intent.query);
+      sctx='\n\n[YouTube खोजिएको: "'+intent.query+'" — नयाँ tab मा खुलेको छ। यसको बारेमा brief नेपालीमा भन्नु।]';
+    }else if(intent.type==='wx'){
+      results=await getWeather(intent.query);
+      if(results)sctx='\n\n[मौसम data]\n'+results[0].description+'\n\nयो weather data को आधारमा नेपालीमा सहज जवाफ दिनु।';
+    }else{
+      results=await duckSearch(intent.query);
+      if(results&&results.length>0)sctx='\n\n[इन्टरनेट खोज: "'+intent.query+'"]\n'+results.map(function(r,i){return (i+1)+'. '+r.title+': '+r.description;}).join('\n')+'\n\nखोज नतिजाको आधारमा नेपालीमा स्पष्ट जवाफ दिनु।';
+    }
+    if(results&&results.length>0){
+      var icon=intent.type==='yt'?'▶️':intent.type==='wx'?'🌤️':'🔍';
+      var html='<div style="font-size:12px;color:#f59e0b;margin-bottom:8px;">'+icon+' <b>'+intent.query+'</b></div>';
+      results.slice(0,3).forEach(function(r){html+='<div class="sr"><div class="st">'+r.title+'</div><div class="ss">'+(r.description||'').substring(0,130)+'</div></div>';});
+      addMsg(icon+' HELIX',html,'s');
+    }
+  }
+
+  orb.className='thinking';setStat('HELIX सोच्दैछ...','T');sStat.textContent='Thinking';
+  showTyping(true,'HELIX सोच्दैछ...');
+
+  var msgs=hist.slice();
+  if(sctx)msgs[msgs.length-1]={role:'user',content:userText+sctx};
+
+  var ctrl=new XMLHttpRequest();
+  ctrl.open('POST','https://api.groq.com/openai/v1/chat/completions');
+  ctrl.setRequestHeader('Content-Type','application/json');
+  ctrl.setRequestHeader('Authorization','Bearer '+key);
+  ctrl.timeout=20000;
+
+  ctrl.onload=function(){
+    showTyping(false);
+    try{
+      const d=JSON.parse(ctrl.responseText);
+      if(d.error)throw new Error(d.error.message);
+      const reply=d.choices[0].message.content;
+      hist.push({role:'assistant',content:reply});
+      sfxGet();
+      addMsg('HELIX',reply,'h');
+      speak(reply);
+    }catch(e){
+      orb.className='';isSpeaking=false;
+      setStat('त्रुटि: '+e.message,'E');sStat.textContent='Ready';sfxErr();
+      if(contMode)resumeMic();
+    }
+  };
+  ctrl.onerror=ctrl.ontimeout=function(){
+    showTyping(false);orb.className='';isSpeaking=false;
+    setStat('जवाफ ढिलो भयो — फेरि सोध्नुस्','E');sStat.textContent='Ready';sfxErr();
+    if(contMode)resumeMic();
+  };
+
+  ctrl.send(JSON.stringify({
+    model:'llama-3.3-70b-versatile',
+    max_tokens:450,
+    temperature:0.75,
+    messages:[
+      {role:'system',content:'तिमी HELIX हौ — Pritam ले बनाएको Nepal को सबैभन्दा उन्नत AI सहायक। JARVIS भन्दा पनि smart.\n\nव्यक्तित्व: Calm, sharp, confident. हल्का humor. कहिलेकाहीं "दाइ","भाइ","सर" भन्नु.\n\nभाषा: सधैं सरल स्वाभाविक नेपाली — TV anchor जस्तो। English structure नेपालीमा नराख्नु। जवाफ: "ल दाइ," / "हुन्छ," / "बिल्कुल,"\n\nजवाफ: छोटो→२-३ वाक्य। जटिल→bullet। Search नतिजा आयो भने त्यसैको आधारमा।\n\nNepal तथ्य (२०८२): PM=KP Sharma Oli, काठमाडौं Mayor=Balendra Shah (PM होइन!), President=Ram Chandra Paudel। Deuba अहिले PM होइन।\n\nCRITICAL: Search नतिजा भएको बेला त्यसैलाई प्राथमिकता दिनु। पुरानो data प्रयोग नगर्नु।'},
+      ...msgs
+    ]
+  }));
+}
+
+/* MIC */
+function initRec(){
+  if(!SpeechRec||recInited)return;
+  recInited=true;
+  recognition=new SpeechRec();
+  recognition.lang='ne-NP';
+  recognition.continuous=true;
+  recognition.interimResults=false;
+  recognition.maxAlternatives=1;
+  recognition.onresult=function(e){
+    if(isSpeaking)return;
+    var res=e.results[e.results.length-1];
+    if(!res.isFinal)return;
+    var t=res[0].transcript.trim();
+    if(t.length<2)return;
+    sfxSend();askHELIX(t);
+  };
+  recognition.onerror=function(e){
+    if(e.error==='no-speech'||e.error==='aborted')return;
+    console.warn('mic:',e.error);
+  };
+  recognition.onend=function(){
+    if(contMode&&!isSpeaking){
+      setTimeout(function(){try{recognition.start();}catch(e){}},400);
+    }
+  };
+}
+
+function startListen(){
+  if(!SpeechRec){setStat('Speech support छैन','E');return;}
+  initRec();
+  orb.className='listening';setStat('सुन्दैछु... बोल्नुस्!','L');sStat.textContent='Listening';wave(true);
+  try{recognition.start();}catch(e){}
+}
+
+function stopListen(){
+  if(recognition)try{recognition.abort();}catch(e){}
+  orb.className='';wave(false);
+  setStat('👁 थिच्नुस् — HELIX तयार छ');sStat.textContent='Ready';
+}
+
+function toggleMic(){
+  sfxOn();
+  if(contMode){
+    contMode=false;
+    stopListen();
+    btnMic.className='';
+    btnMic.innerHTML='👁 बोल्न थिच्नुस्';
+  }else{
+    contMode=true;
+    btnMic.className='ON';
+    btnMic.innerHTML='🟢 HELIX सुन्दैछ — रोक्न थिच्नुस्';
+    startListen();
+  }
+}
+
+function send(){
+  var t=typeIn.value.trim();
+  if(!t)return;
+  typeIn.value='';
+  askHELIX(t);
+}
+
+/* EVENTS */
+orb.addEventListener('click',toggleMic);
+btnMic.addEventListener('click',toggleMic);
+btnClear.addEventListener('click',function(){
+  logEl.innerHTML='<p class="ph">⬡ &nbsp; HELIX सक्रिय छ — बोल्नुस् वा लेख्नुस् &nbsp; ⬡</p>';
+  firstMsg=true;hist=[];msgN=0;srchN=0;
+  sMsg.textContent=0;sSrch.textContent=0;
+  tone(300,0.2);
+});
+btnSend.addEventListener('click',send);
+typeIn.addEventListener('keydown',function(e){if(e.key==='Enter')send();});
+if(synth)synth.onvoiceschanged=function(){};
+
+/* PWA SERVICE WORKER + INSTALL */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js').then(function(r){
+      console.log('SW registered');
+    }).catch(function(e){console.log('SW failed:',e);});
+  });
+}
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('installBtn').style.display='block';
+});
+document.getElementById('installBtn').addEventListener('click',function(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(r){
+    deferredPrompt=null;
+    document.getElementById('installBtn').style.display='none';
+  });
+});
+window.addEventListener('appinstalled',function(){
+  document.getElementById('installBtn').style.display='none';
+});
+</script>
+</body>
+</html>
