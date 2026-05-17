@@ -1,0 +1,16 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="80" fill="#020818"/>
+  <circle cx="256" cy="256" r="240" fill="none" stroke="#00d4ff" stroke-width="3" opacity="0.3"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.15"/>
+  <!-- Eye shape -->
+  <path d="M60,256 Q256,100 452,256 Q256,412 60,256 Z" fill="#0a1a2e" stroke="#00d4ff" stroke-width="6"/>
+  <!-- Iris -->
+  <circle cx="256" cy="256" r="90" fill="#00d4ff" opacity="0.9"/>
+  <!-- Pupil -->
+  <circle cx="256" cy="256" r="50" fill="#020818"/>
+  <!-- Shine -->
+  <circle cx="288" cy="224" r="22" fill="rgba(255,255,255,0.65)"/>
+  <circle cx="224" cy="278" r="11" fill="rgba(255,255,255,0.35)"/>
+  <!-- Glow ring -->
+  <circle cx="256" cy="256" r="90" fill="none" stroke="#00d4ff" stroke-width="4" opacity="0.5"/>
+</svg>
